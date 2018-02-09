@@ -305,7 +305,7 @@ func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldSkipBuffer(cmd string) bool 
 	//cmd = regexp.MustCompile("\\(.*?\\)").ReplaceAllString(cmd, "")
 	//cmd = regexp.MustCompile(";.*").ReplaceAllString(cmd, "")
 	// adding some new regexp to match real-time commands for grbl 1 version 
-	if match, _ := regexp.MatchString("[!~\\?]|(\u0018)|[\u0080-\u00FF]", cmd); match {
+	if match, _ := regexp.MatchString("[!~\\?]|(\x18)|[\x80-\xFF]", cmd); match {
 		log.Printf("Found cmd that should skip buffer. cmd:%q\n", cmd)
 		return true
 	}
