@@ -320,7 +320,7 @@ func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldPauseBuffer(cmd string) bool
 	//	log.Printf("Found cmd that should pause buffer. cmd:%v\n", cmd)
 	//	return true
 	//}
-	return false	// No commands should stop the transmission
+	return false	// No command should stop the transmission
 }
 
 func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldUnpauseBuffer(cmd string) bool {
@@ -331,7 +331,7 @@ func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldUnpauseBuffer(cmd string) bo
 	//	log.Printf("Found cmd that should unpause buffer. cmd:%v\n", cmd)
 	//	return true
 	//}
-	return false	// No commands should stop the transmission
+	return false	// No command should stop the transmission
 }
 
 func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldWipeBuffer(cmd string) bool {
