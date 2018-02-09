@@ -301,15 +301,18 @@ func (b *BufferflowGrbl) Unpause() {
 }
 
 func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldSkipBuffer(cmd string) bool {
+	if len(cmd) != 1 return false		// Skip buffer commands (=realtime commands) are always single byte
+	c := cmd[0]				// Extract ASCII code
+	return c == '!' || c == '~' || c == '?' || c == 0x18 || c >= 0x80 
 	// remove comments
 	//cmd = regexp.MustCompile("\\(.*?\\)").ReplaceAllString(cmd, "")
 	//cmd = regexp.MustCompile(";.*").ReplaceAllString(cmd, "")
 	// adding some new regexp to match real-time commands for grbl 1 version 
-	if match, _ := regexp.MatchString("[!~\\?]|(\x18)|[\x80-\xFF]", cmd); match {
-		log.Printf("Found cmd that should skip buffer. cmd:%q\n", cmd)
-		return true
-	}
-	return false
+	//if match, _ := regexp.MatchString("[!~\\?]|(\u0018)|[\u0080-\u00FF]", cmd); match {
+	//	log.Printf("Found cmd that should skip buffer. cmd:%q\n", cmd)
+	//	return true
+	//}
+	//return false
 }
 
 func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldPauseBuffer(cmd string) bool {
