@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 )
 
 type BufferflowGrbl struct {
@@ -98,7 +99,7 @@ func (b *BufferflowGrbl) BlockUntilReady(cmd string, id string) (bool, bool, str
 			return false, false, ""
 		}
 
-		log.Printf("BlockUntilReady(cmd:%v, id:%v) end\n", cmd, id)
+		log.Printf("BlockUntilReady(cmd:%q, id:%v) end\n", cmd, id)
 	}
 	return true, true, ""
 }
@@ -245,6 +246,15 @@ func (b *BufferflowGrbl) BreakApartCommands(cmd string) []string {
 		item = regexp.MustCompile(";.*").ReplaceAllString(item, "")
 		item = strings.Replace(item, " ", "", -1)
 
+		if len(item) > utf8.RuneCountInString(item) {	// If item contains UTF-8 chars other than ASCII. Extended ASCII must be extracted from UTF8 code point
+			r := []rune(item)			// Note : Extended ASCII are used for some realtime commands
+			a := make([]byte, len(r))
+			for idx, element := range r {
+				a[idx] = byte(element)
+        		}
+			item = string(a)
+		}
+		
 		if item == "*init*" { //return init string to update grbl widget when already connected to grbl
 			m := DataPerLine{b.Port, b.version + "\n"}
 			bm, err := json.Marshal(m)
@@ -257,7 +267,7 @@ func (b *BufferflowGrbl) BreakApartCommands(cmd string) []string {
 			if err == nil {
 				h.broadcastSys <- bm
 			}
-		} else if item == "?" {
+		} else if b.SeeIfSpecificCommandsShouldSkipBuffer(item) {	// realtime commands don't need '\n'
 			log.Printf("Query added without newline: %q\n", item)
 			finalCmds = append(finalCmds, item) //append query request without newline character
 		} else if item == "%" {
@@ -265,10 +275,10 @@ func (b *BufferflowGrbl) BreakApartCommands(cmd string) []string {
 			b.LocalBufferWipe(b.parent_serport)
 			//dont add this command to the list of finalCmds
 		} else if item != "" {
-			log.Printf("Re-adding newline to item:%v\n", item)
+			log.Printf("Re-adding newline to item:%q\n", item)
 			s := item + "\n"
 			finalCmds = append(finalCmds, s)
-			log.Printf("New cmd item:%v\n", s)
+			log.Printf("New cmd item:%q\n", s)
 		}
 
 	}
@@ -296,7 +306,7 @@ func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldSkipBuffer(cmd string) bool 
 	//cmd = regexp.MustCompile(";.*").ReplaceAllString(cmd, "")
 	// adding some new regexp to match real-time commands for grbl 1 version 
 	if match, _ := regexp.MatchString("[!~\\?]|(\u0018)|[\u0080-\u00FF]", cmd); match {
-		log.Printf("Found cmd that should skip buffer. cmd:%v\n", cmd)
+		log.Printf("Found cmd that should skip buffer. cmd:%q\n", cmd)
 		return true
 	}
 	return false
@@ -306,22 +316,22 @@ func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldPauseBuffer(cmd string) bool
 	// remove comments
 	//cmd = regexp.MustCompile("\\(.*?\\)").ReplaceAllString(cmd, "")
 	//cmd = regexp.MustCompile(";.*").ReplaceAllString(cmd, "")
-	if match, _ := regexp.MatchString("[!]", cmd); match {
-		log.Printf("Found cmd that should pause buffer. cmd:%v\n", cmd)
-		return true
-	}
-	return false
+	//if match, _ := regexp.MatchString("[!]", cmd); match {
+	//	log.Printf("Found cmd that should pause buffer. cmd:%v\n", cmd)
+	//	return true
+	//}
+	return false	// No commands should stop the transmission
 }
 
 func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldUnpauseBuffer(cmd string) bool {
 
 	//cmd = regexp.MustCompile("\\(.*?\\)").ReplaceAllString(cmd, "")
 	//cmd = regexp.MustCompile(";.*").ReplaceAllString(cmd, "")
-	if match, _ := regexp.MatchString("[~]", cmd); match {
-		log.Printf("Found cmd that should unpause buffer. cmd:%v\n", cmd)
-		return true
-	}
-	return false
+	//if match, _ := regexp.MatchString("[~]", cmd); match {
+	//	log.Printf("Found cmd that should unpause buffer. cmd:%v\n", cmd)
+	//	return true
+	//}
+	return false	// No commands should stop the transmission
 }
 
 func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldWipeBuffer(cmd string) bool {
