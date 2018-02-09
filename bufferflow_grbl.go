@@ -301,7 +301,9 @@ func (b *BufferflowGrbl) Unpause() {
 }
 
 func (b *BufferflowGrbl) SeeIfSpecificCommandsShouldSkipBuffer(cmd string) bool {
-	if len(cmd) != 1 return false		// Skip buffer commands (=realtime commands) are always single byte
+	if len(cmd) != 1 {		// Skip buffer commands (=realtime commands) are always single byte
+		return false
+	}
 	c := cmd[0]				// Extract ASCII code
 	return c == '!' || c == '~' || c == '?' || c == 0x18 || c >= 0x80 
 	// remove comments
