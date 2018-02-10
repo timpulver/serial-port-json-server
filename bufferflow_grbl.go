@@ -155,10 +155,9 @@ func (b *BufferflowGrbl) OnIncomingData(data string) {
 					// Send cmd:"Error" back
 					log.Printf("Error Response Received:%v, id:%v", doneCmd, id)
 					arrErrors := strings.SplitN(element, ":", 2)
+					errCode := ""
 					if len(arrErrors) == 2 {
 						errCode := arrErrors[1]
-					} else {
-						errCode := ""
 					}
 					m := DataCmdError{DataCmdComplete{"Error", id, b.Port, b.q.LenOfCmds(), doneCmd}, errCode}
 					bm, err := json.Marshal(m)
