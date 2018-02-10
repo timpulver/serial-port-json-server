@@ -36,7 +36,7 @@ type BufferflowGrbl struct {
 	rpt       *regexp.Regexp
 }
 
-type DataCmdError struc {
+type DataCmdError struct {
 	DataCmdComplete
 	ErrorCode	string
 }
