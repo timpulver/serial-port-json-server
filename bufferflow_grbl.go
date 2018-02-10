@@ -36,6 +36,11 @@ type BufferflowGrbl struct {
 	rpt       *regexp.Regexp
 }
 
+type DataCmdError struc {
+	DataCmdComplete
+	ErrorCode	string
+}
+
 func (b *BufferflowGrbl) Init() {
 	b.lock = &sync.Mutex{}
 	b.SetPaused(false, 1)
@@ -149,7 +154,13 @@ func (b *BufferflowGrbl) OnIncomingData(data string) {
 				} else if b.err.MatchString(element) {
 					// Send cmd:"Error" back
 					log.Printf("Error Response Received:%v, id:%v", doneCmd, id)
-					m := DataCmdComplete{"Error", id, b.Port, b.q.LenOfCmds(), doneCmd}
+					arrErrors := strings.SplitN(element, ":", 2)
+					if len(arrErrors) == 2 {
+						errCode := arrErrors[1]
+					} else {
+						errCode := ""
+					}
+					m := DataCmdError{DataCmdComplete{"Error", id, b.Port, b.q.LenOfCmds(), doneCmd}, errCode}
 					bm, err := json.Marshal(m)
 					if err == nil {
 						h.broadcastSys <- bm
