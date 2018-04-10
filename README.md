@@ -4,7 +4,7 @@ Version 1.95
 
 A serial port JSON websocket &amp; web server that runs from the command line on Windows, Mac, Linux, Raspberry Pi, or Beagle Bone that lets you communicate with your serial port from a web application. This enables web apps to be written that can communicate with your local serial device such as an Arduino, CNC controller, or any device that communicates over the serial port. Since version 1.82 you can now also program your Arduino by uploading a hex file.
 
-The app is written in Go. It has an embedded web server and websocket server. The server runs on the standard port of localhost:8989. You can connect to it locally with your browser to interact by visiting http://localhost:8989. The websocket is technically running at ws://localhost/ws. You can of course connect to your websocket from any other computer to bind in remotely. For example, just connect to ws://192.168.1.10/ws if you are on a remote host where 192.168.1.10 is your devices actual IP address.
+The app is written in Go. It has an embedded web server and websocket server. The server runs on the standard port of localhost:8989. You can connect to it locally with your browser to interact by visiting http://localhost:8989. The websocket is technically running at ws://localhost:8989/ws. You can of course connect to your websocket from any other computer to bind in remotely. For example, just connect to ws://192.168.1.10:8989/ws if you are on a remote host where 192.168.1.10 is your devices actual IP address.
 
 The app is one executable with everything you need and is available ready-to-go for every major platform. It is a multi-threaded app that uses all of the cool techniques available in Go including extensive use of channels (threads) to create a super-responsive app.
 
